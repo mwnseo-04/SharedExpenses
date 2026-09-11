@@ -40,5 +40,9 @@ def create_app(test_config=None):
 
     with app.app_context():
         db.create_all()
+        if not app.config.get("TESTING"):
+            from app.demo_data import ensure_demo_data
+
+            ensure_demo_data()
 
     return app
