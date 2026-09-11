@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: sharedexpenses-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -b 0.0.0.0:$PORT wsgi:app
+    envVars:
+      - key: ACCESS_PIN
+        generateValue: false
+        value: "48291"
+      - key: PYTHON_VERSION
+        value: "3.12.10"
