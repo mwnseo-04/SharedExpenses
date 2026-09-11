@@ -58,16 +58,21 @@ function App() {
 
   const loadTripDetails = useCallback(async (tripId) => {
     if (!tripId) return
-    const [tripData, balanceData, settlementData, analyticsData] = await Promise.all([
+    const [tripData, balanceData, settlementData] = await Promise.all([
       api.trip(tripId),
       api.balances(tripId),
       api.settlements(tripId),
-      api.analytics(tripId),
     ])
     setTrip(tripData)
     setBalances(balanceData)
     setSettlements(settlementData)
-    setAnalytics(analyticsData)
+
+    try {
+      const analyticsData = await api.analytics(tripId)
+      setAnalytics(analyticsData)
+    } catch {
+      setAnalytics(null)
+    }
   }, [])
 
   useEffect(() => {
@@ -332,9 +337,16 @@ function App() {
           </nav>
 
           <main className="page" aria-busy={busy}>
-            {tab === 'overview' && analytics && (
+            {tab === 'overview' && (
               <div className="layout-overview">
-                <TripPace trip={trip} analytics={analytics} />
+                {analytics ? (
+                  <TripPace trip={trip} analytics={analytics} />
+                ) : (
+                  <section className="panel">
+                    <h2>Trip pace</h2>
+                    <p className="muted">Pace analytics are warming up. Everything else below is ready.</p>
+                  </section>
+                )}
                 <section className="panel">
                   <div className="panel-header">
                     <h2>Travelers</h2>
@@ -381,7 +393,11 @@ function App() {
                 </section>
                 <section className="panel">
                   <div className="panel-header"><h2>Category mix</h2></div>
-                  <CategoryChart data={analytics.spending_by_category} />
+                  {analytics ? (
+                    <CategoryChart data={analytics.spending_by_category} />
+                  ) : (
+                    <p className="muted">Category breakdown will appear once analytics finish loading.</p>
+                  )}
                 </section>
               </div>
             )}

@@ -223,4 +223,8 @@ def get_settlements(trip_id):
 @api.get("/trips/<int:trip_id>/analytics")
 def get_analytics(trip_id):
     trip = db.get_or_404(Trip, trip_id)
-    return jsonify(build_analytics(trip))
+    try:
+        return jsonify(build_analytics(trip))
+    except Exception:
+        current_app.logger.exception("Analytics failed for trip %s", trip_id)
+        return error("Analytics temporarily unavailable.", 503)

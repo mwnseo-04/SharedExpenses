@@ -4,7 +4,7 @@ services:
     runtime: python
     rootDir: backend
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn -b 0.0.0.0:$PORT wsgi:app
+    startCommand: gunicorn -b 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 120 wsgi:app
     envVars:
       - key: ACCESS_PIN
         generateValue: false
