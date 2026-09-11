@@ -1,4 +1,12 @@
-const API_BASE = import.meta.env.VITE_API_URL || '/api'
+function normalizeApiBase(raw) {
+  let base = String(raw || '/api').trim().replace(/\/+$/, '')
+  if (/^https?:\/\//i.test(base) && !/\/api$/i.test(base)) {
+    base = `${base}/api`
+  }
+  return base
+}
+
+const API_BASE = normalizeApiBase(import.meta.env.VITE_API_URL)
 const ACCESS_KEY = 'sharedExpenses.access'
 
 export function getAccessMode() {
