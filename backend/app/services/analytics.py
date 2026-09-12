@@ -1,6 +1,77 @@
+from collections import defaultdict
 from datetime import date
+import os
 
 import pandas as pd
+
+
+def _analyze_with_pandas(rows):
+    frame = pd.DataFrame(rows, columns=["date", "category", "amount_cents"])
+    if frame.empty:
+        return [], [], 0
+
+    frame["date"] = pd.to_datetime(frame["date"], errors="coerce")
+    frame["amount_cents"] = pd.to_numeric(frame["amount_cents"], errors="coerce").fillna(0).astype(int)
+
+    category_totals = (
+        frame.groupby("category", as_index=False)["amount_cents"]
+        .sum()
+        .sort_values("amount_cents", ascending=False)
+    )
+    categories = [
+        {"category": str(row.category), "amount_cents": int(row.amount_cents)}
+        for row in category_totals.itertuples(index=False)
+    ]
+
+    frame["day"] = frame["date"].dt.strftime("%Y-%m-%d")
+    daily_totals = (
+        frame.groupby("day", as_index=False)["amount_cents"]
+        .sum()
+        .sort_values("day")
+    )
+    days = [
+        {"date": str(row.day), "amount_cents": int(row.amount_cents)}
+        for row in daily_totals.itertuples(index=False)
+    ]
+    expense_average = int(round(float(frame["amount_cents"].mean())))
+    return categories, days, expense_average
+
+
+def _analyze_with_python(rows):
+    if not rows:
+        return [], [], 0
+
+    by_category = defaultdict(int)
+    by_day = defaultdict(int)
+    total = 0
+    for row in rows:
+        amount = int(row["amount_cents"])
+        by_category[row["category"]] += amount
+        by_day[row["date"]] += amount
+        total += amount
+
+    categories = [
+        {"category": category, "amount_cents": amount}
+        for category, amount in sorted(by_category.items(), key=lambda item: item[1], reverse=True)
+    ]
+    days = [
+        {"date": day, "amount_cents": amount}
+        for day, amount in sorted(by_day.items())
+    ]
+    expense_average = int(round(total / len(rows)))
+    return categories, days, expense_average
+
+
+def _expense_breakdown(rows):
+    # Free Render memory is tight; pandas is used locally/tests and when explicitly enabled.
+    force_pandas = os.environ.get("USE_PANDAS") == "1"
+    on_render = bool(os.environ.get("RENDER"))
+    if force_pandas or not on_render:
+        try:
+            return _analyze_with_pandas(rows)
+        except Exception:
+            return _analyze_with_python(rows)
+    return _analyze_with_python(rows)
 
 
 def build_analytics(trip, today: date | None = None) -> dict:
@@ -38,30 +109,7 @@ def build_analytics(trip, today: date | None = None) -> dict:
         }
         for expense in trip.expenses
     ]
-
-    # Keep the pandas path lightweight for free-tier hosts.
-    frame = pd.DataFrame(rows, columns=["date", "category", "amount_cents"])
-    if frame.empty:
-        categories = []
-        days = []
-        expense_average = 0
-    else:
-        frame["date"] = pd.to_datetime(frame["date"], errors="coerce")
-        category_totals = (
-            frame.groupby("category", sort=False)["amount_cents"].sum().sort_values(ascending=False)
-        )
-        categories = [
-            {"category": str(category), "amount_cents": int(amount)}
-            for category, amount in category_totals.items()
-        ]
-        daily_totals = (
-            frame.groupby(frame["date"].dt.strftime("%Y-%m-%d"), sort=True)["amount_cents"].sum()
-        )
-        days = [
-            {"date": str(day), "amount_cents": int(amount)}
-            for day, amount in daily_totals.items()
-        ]
-        expense_average = int(round(float(frame["amount_cents"].mean())))
+    categories, days, expense_average = _expense_breakdown(rows)
 
     budget_used_percentage = (
         current_spend / trip.total_budget_cents * 100 if trip.total_budget_cents else 0.0

@@ -479,36 +479,45 @@ function App() {
               </div>
             )}
 
-            {tab === 'insights' && analytics && (
+            {tab === 'insights' && (
               <div className="layout-insights">
-                <section className="insight-strip">
-                  <article>
-                    <span>Average daily spend</span>
-                    <strong>{money(analytics.average_daily_spend_cents)}</strong>
-                  </article>
-                  <article>
-                    <span>Expected to date</span>
-                    <strong>{money(analytics.expected_spend_to_date_cents)}</strong>
-                  </article>
-                  <article>
-                    <span>Pace difference</span>
-                    <strong className={analytics.spending_pace_difference_cents > 0 ? 'negative' : 'positive'}>
-                      {money(analytics.spending_pace_difference_cents)}
-                    </strong>
-                  </article>
-                  <article>
-                    <span>Forecasted final</span>
-                    <strong>{money(analytics.forecasted_final_cost_cents)}</strong>
-                  </article>
-                </section>
-                <section className="panel">
-                  <h2>Spending by day</h2>
-                  <DailyChart data={analytics.spending_by_day} />
-                </section>
-                <section className="panel">
-                  <h2>Spending by category</h2>
-                  <CategoryChart data={analytics.spending_by_category} />
-                </section>
+                {analytics ? (
+                  <>
+                    <section className="insight-strip">
+                      <article>
+                        <span>Average daily spend</span>
+                        <strong>{money(analytics.average_daily_spend_cents)}</strong>
+                      </article>
+                      <article>
+                        <span>Expected to date</span>
+                        <strong>{money(analytics.expected_spend_to_date_cents)}</strong>
+                      </article>
+                      <article>
+                        <span>Pace difference</span>
+                        <strong className={analytics.spending_pace_difference_cents > 0 ? 'negative' : 'positive'}>
+                          {money(analytics.spending_pace_difference_cents)}
+                        </strong>
+                      </article>
+                      <article>
+                        <span>Forecasted final</span>
+                        <strong>{money(analytics.forecasted_final_cost_cents)}</strong>
+                      </article>
+                    </section>
+                    <section className="panel">
+                      <h2>Spending by day</h2>
+                      <DailyChart data={analytics.spending_by_day} />
+                    </section>
+                    <section className="panel">
+                      <h2>Spending by category</h2>
+                      <CategoryChart data={analytics.spending_by_category} />
+                    </section>
+                  </>
+                ) : (
+                  <section className="panel">
+                    <h2>Insights</h2>
+                    <p className="muted">Analytics are temporarily unavailable. Trip expenses and settlements still work.</p>
+                  </section>
+                )}
               </div>
             )}
           </main>
