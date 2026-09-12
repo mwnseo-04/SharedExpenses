@@ -156,11 +156,11 @@ export function CategoryChart({ data }) {
   if (!data.length) return <EmptyChart />
   return (
     <div className="chart-wrap">
-      <ResponsiveContainer width="100%" height={280}>
-        <BarChart data={data} layout="vertical" margin={{ top: 4, right: 12, left: 6, bottom: 0 }}>
+      <ResponsiveContainer width="100%" height={260}>
+        <BarChart data={data} layout="vertical" margin={{ top: 8, right: 12, left: 4, bottom: 4 }}>
           <CartesianGrid stroke="#ece8df" horizontal={false} />
           <XAxis type="number" hide />
-          <YAxis type="category" dataKey="category" width={108} tickLine={false} axisLine={false} tick={{ fill: '#5f625e', fontSize: 12 }} />
+          <YAxis type="category" dataKey="category" width={104} tickLine={false} axisLine={false} tick={{ fill: '#5f625e', fontSize: 12 }} />
           <Tooltip content={<ChartTooltip />} cursor={{ fill: '#f5f1e9' }} />
           <Bar dataKey="amount_cents" radius={[0, 5, 5, 0]} barSize={22} isAnimationActive={false}>
             {data.map((entry) => <Cell key={entry.category} fill={categoryColors[entry.category]} />)}
@@ -175,12 +175,18 @@ export function DailyChart({ data }) {
   if (!data.length) return <EmptyChart />
   const formatted = data.map((item) => ({ ...item, label: shortDate(item.date) }))
   return (
-    <div className="chart-wrap">
-      <ResponsiveContainer width="100%" height={280}>
-        <LineChart data={formatted} margin={{ top: 8, right: 16, left: -16, bottom: 0 }}>
+    <div className="chart-wrap chart-wrap-daily">
+      <ResponsiveContainer width="100%" height={260}>
+        <LineChart data={formatted} margin={{ top: 12, right: 8, left: 4, bottom: 4 }}>
           <CartesianGrid stroke="#ece8df" vertical={false} />
-          <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: '#777a75', fontSize: 12 }} />
-          <YAxis tickFormatter={(value) => `$${Math.round(value / 100)}`} tickLine={false} axisLine={false} tick={{ fill: '#777a75', fontSize: 12 }} />
+          <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: '#777a75', fontSize: 12 }} dy={4} />
+          <YAxis
+            width={42}
+            tickFormatter={(value) => `$${Math.round(value / 100)}`}
+            tickLine={false}
+            axisLine={false}
+            tick={{ fill: '#777a75', fontSize: 12 }}
+          />
           <Tooltip content={<ChartTooltip />} />
           <Line type="monotone" dataKey="amount_cents" stroke="#d15c3f" strokeWidth={3} isAnimationActive={false} dot={{ fill: '#fff', stroke: '#d15c3f', strokeWidth: 2, r: 4 }} />
         </LineChart>

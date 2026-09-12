@@ -235,10 +235,7 @@ function App() {
     <div className="app-shell">
       <header className="topbar">
         <div className="brand">
-          <span className="brand-mark">SE</span>
-          <div>
-            <strong>SharedExpenses</strong>
-          </div>
+          <strong>SharedExpenses</strong>
         </div>
         <div className="topbar-actions">
           <span className={`mode-chip ${canEdit ? 'mode-edit' : 'mode-guest'}`}>
@@ -593,7 +590,6 @@ function AccessGate({ onGuest, onUnlock }) {
   return (
     <div className="access-gate">
       <section className="access-card" aria-labelledby="access-title">
-        <span className="brand-mark">SE</span>
         <h1 id="access-title">SharedExpenses</h1>
         <p>Browse the demo as a guest, or enter the PIN to manage trips.</p>
         <button className="button" type="button" onClick={onGuest}>

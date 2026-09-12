@@ -70,26 +70,13 @@ a { color: inherit; }
   align-items: center;
 }
 
-.brand-mark {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--sea);
-  color: #fff;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  line-height: 1;
-  transform: translateZ(0);
+.brand strong {
+  display: block;
+  font-family: var(--display);
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+  font-weight: 600;
 }
-.brand-mark,
-.access-card .brand-mark {
-  padding-bottom: 1px;
-}
-
-.brand strong { display: block; }
 
 .topbar-actions {
   display: flex;
@@ -214,7 +201,6 @@ fieldset {
   justify-items: start;
 }
 
-.access-card .brand-mark { margin-bottom: 0.15rem; }
 .access-card h1 {
   margin: 0;
   font-family: var(--display);
@@ -380,9 +366,6 @@ fieldset {
 
 .pace-heading,
 .panel-header,
-.expense-row,
-.transfer-row,
-.balance-detail,
 .filter-row,
 .form-actions {
   display: flex;
@@ -506,9 +489,7 @@ fieldset {
 .member-list { margin-top: 0.9rem; }
 .member-list li,
 .balance-chip,
-.balance-detail,
-.expense-row,
-.transfer-row {
+.expense-row {
   display: flex;
   gap: 0.75rem;
   align-items: center;
@@ -595,15 +576,50 @@ fieldset {
 }
 .settle-hero p { margin: 0; color: var(--muted); }
 
+.transfer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.85rem 1rem;
+  align-items: center;
+}
 .transfer-people {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  gap: 0.4rem 0.55rem;
   align-items: center;
+  min-width: 0;
 }
 .transfer-people .arrow {
   color: var(--muted);
   font-size: 0.85rem;
+}
+.transfer-row > strong {
+  justify-self: end;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.balance-detail {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.75rem 0.85rem;
+  align-items: center;
+}
+.balance-detail > div {
+  min-width: 0;
+  text-align: left;
+}
+.balance-detail > div strong,
+.balance-detail > div span {
+  display: block;
+  text-align: left;
+}
+.balance-detail > em {
+  justify-self: end;
+  font-style: normal;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .insight-strip {
@@ -614,8 +630,12 @@ fieldset {
 
 .chart-wrap {
   width: 100%;
-  min-height: 280px;
+  min-height: 260px;
+  margin-top: 0.35rem;
   overflow: hidden;
+}
+.panel .chart-wrap {
+  margin-top: 0.75rem;
 }
 .recharts-wrapper,
 .recharts-surface {
@@ -798,5 +818,18 @@ fieldset {
     flex: 0 0 auto;
     min-height: 44px;
   }
-  .transfer-row, .balance-detail { align-items: flex-start; flex-direction: column; }
+  .transfer-row {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+  .transfer-row > strong {
+    justify-self: start;
+  }
+  .balance-detail {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .balance-detail > em {
+    grid-column: 2;
+    justify-self: start;
+  }
 }
