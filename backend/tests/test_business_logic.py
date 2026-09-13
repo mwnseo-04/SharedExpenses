@@ -212,6 +212,9 @@ def test_update_trip_details(app):
     assert payload["name"] == "Updated Trip"
     assert payload["destination"] == "Updated City"
     assert payload["total_budget_cents"] == 150_000
+
+
+def test_deleting_expense_updates_calculations(app):
     trip, members = make_trip()
     expense_record = add_expense(trip, members[0], members, 9_000)
     db.session.commit()
