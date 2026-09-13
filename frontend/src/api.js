@@ -51,6 +51,7 @@ export const api = {
   trips: () => request('/trips'),
   trip: (id) => request(`/trips/${id}`),
   createTrip: (payload) => request('/trips', { method: 'POST', body: JSON.stringify(payload) }),
+  updateTrip: (id, payload) => request(`/trips/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }),
   deleteTrip: (id) => request(`/trips/${id}`, { method: 'DELETE' }),
   addMember: (tripId, name) =>
     request(`/trips/${tripId}/members`, { method: 'POST', body: JSON.stringify({ name }) }),

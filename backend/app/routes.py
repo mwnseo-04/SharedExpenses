@@ -104,6 +104,38 @@ def get_trip(trip_id):
     return jsonify(trip.to_dict(include_details=True))
 
 
+@api.patch("/trips/<int:trip_id>")
+@require_write_access
+def update_trip(trip_id):
+    trip = db.get_or_404(Trip, trip_id)
+    data = request.get_json(silent=True) or {}
+    try:
+        name = str(data.get("name", trip.name)).strip()
+        destination = str(data.get("destination", trip.destination)).strip()
+        start_date = parse_date(data.get("start_date", trip.start_date.isoformat()), "start_date")
+        end_date = parse_date(data.get("end_date", trip.end_date.isoformat()), "end_date")
+        if "total_budget" in data:
+            budget = parse_money(data.get("total_budget"), "total_budget")
+        else:
+            budget = trip.total_budget_cents
+        if not name or not destination:
+            raise ValueError("Trip name and destination are required.")
+        if end_date < start_date:
+            raise ValueError("End date cannot be before start date.")
+        if budget <= 0:
+            raise ValueError("Budget must be greater than zero.")
+    except ValueError as exc:
+        return error(str(exc))
+
+    trip.name = name
+    trip.destination = destination
+    trip.start_date = start_date
+    trip.end_date = end_date
+    trip.total_budget_cents = budget
+    db.session.commit()
+    return jsonify(trip.to_dict(include_details=True))
+
+
 @api.delete("/trips/<int:trip_id>")
 @require_write_access
 def delete_trip(trip_id):

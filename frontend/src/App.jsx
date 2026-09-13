@@ -34,6 +34,7 @@ function App() {
   const [error, setError] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('All')
   const [showCreateTrip, setShowCreateTrip] = useState(false)
+  const [showEditTrip, setShowEditTrip] = useState(false)
   const [showExpense, setShowExpense] = useState(false)
   const [showMember, setShowMember] = useState(false)
 
@@ -149,6 +150,20 @@ function App() {
       setSelectedTripId(created.id)
       setTab('overview')
       await refreshAll(created.id)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function handleUpdateTrip(payload) {
+    setBusy(true)
+    setError('')
+    try {
+      await api.updateTrip(selectedTripId, payload)
+      setShowEditTrip(false)
+      await refreshAll(selectedTripId)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -303,6 +318,11 @@ function App() {
               </p>
               <h1>{trip.name}</h1>
               <p className="hero-meta">{dateRange(trip.start_date, trip.end_date)} · {trip.members.length} travelers</p>
+              {canEdit && (
+                <button className="text-button edit-trip" type="button" onClick={() => setShowEditTrip(true)}>
+                  Edit trip details
+                </button>
+              )}
             </div>
             <div className="hero-stats">
               <div>
@@ -545,10 +565,18 @@ function App() {
       )}
 
       {canEdit && showCreateTrip && (
-        <CreateTripDialog
+        <TripFormDialog
           busy={busy}
           onClose={() => setShowCreateTrip(false)}
           onSubmit={handleCreateTrip}
+        />
+      )}
+      {canEdit && showEditTrip && trip && (
+        <TripFormDialog
+          trip={trip}
+          busy={busy}
+          onClose={() => setShowEditTrip(false)}
+          onSubmit={handleUpdateTrip}
         />
       )}
       {canEdit && showMember && (
@@ -620,17 +648,22 @@ function AccessGate({ onGuest, onUnlock }) {
   )
 }
 
-function CreateTripDialog({ onClose, onSubmit, busy }) {
+function TripFormDialog({ trip = null, onClose, onSubmit, busy }) {
+  const editing = Boolean(trip)
   const [form, setForm] = useState({
-    name: '',
-    destination: '',
-    start_date: todayIso(),
-    end_date: todayIso(),
-    total_budget: '500',
+    name: trip?.name || '',
+    destination: trip?.destination || '',
+    start_date: trip?.start_date || todayIso(),
+    end_date: trip?.end_date || todayIso(),
+    total_budget: trip ? String((trip.total_budget_cents / 100).toFixed(2)) : '500',
   })
 
   return (
-    <Modal title="Create a trip" description="Set the destination, dates, and shared budget." onClose={onClose}>
+    <Modal
+      title={editing ? 'Edit trip details' : 'Create a trip'}
+      description={editing ? 'Update the destination, dates, or shared budget.' : 'Set the destination, dates, and shared budget.'}
+      onClose={onClose}
+    >
       <form
         className="form-grid"
         onSubmit={(event) => {
@@ -650,7 +683,7 @@ function CreateTripDialog({ onClose, onSubmit, busy }) {
         </label>
         <div className="form-actions">
           <button className="button secondary" type="button" onClick={onClose}>Cancel</button>
-          <button className="button" type="submit" disabled={busy}>Create trip</button>
+          <button className="button" type="submit" disabled={busy}>{editing ? 'Save changes' : 'Create trip'}</button>
         </div>
       </form>
     </Modal>

@@ -152,8 +152,9 @@ Your site will be something like `https://something.netlify.app`.
 
 ### Notes
 
-- Free Render instances sleep when idle; the first request after sleep can take ~30–60s.
-- Free SQLite on Render can reset on redeploy unless you attach a persistent disk. For personal use, re-run `python seed.py` after a wipe, or add a disk.
+- Free Render instances **sleep when idle**. The first request after sleep can take ~30–60s. That delay does **not** by itself delete data.
+- Free Render **ephemeral disk** is the real data risk: after some restarts/redeploys the SQLite file can reset. When that happens, only the auto-seeded demo comes back and trips you created appear “gone.”
+- For durable personal use, add a **persistent disk** on Render (paid), or accept that free-tier data may reset.
 - If you change `VITE_API_URL`, trigger a new Netlify deploy so the frontend rebuilds with the new API address.
 
 ## Product Logic

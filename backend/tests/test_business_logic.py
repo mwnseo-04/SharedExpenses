@@ -191,7 +191,27 @@ def test_future_trip_forecasting():
     assert result["forecasted_final_cost_cents"] == 4_200
 
 
-def test_deleting_expense_updates_calculations(app):
+def test_update_trip_details(app):
+    trip, _members = make_trip()
+    db.session.commit()
+    client = app.test_client()
+    headers = {"X-Access-Pin": app.config["ACCESS_PIN"]}
+    response = client.patch(
+        f"/api/trips/{trip.id}",
+        headers=headers,
+        json={
+            "name": "Updated Trip",
+            "destination": "Updated City",
+            "start_date": trip.start_date.isoformat(),
+            "end_date": (trip.end_date + timedelta(days=2)).isoformat(),
+            "total_budget": 1500,
+        },
+    )
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["name"] == "Updated Trip"
+    assert payload["destination"] == "Updated City"
+    assert payload["total_budget_cents"] == 150_000
     trip, members = make_trip()
     expense_record = add_expense(trip, members[0], members, 9_000)
     db.session.commit()
